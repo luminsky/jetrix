@@ -1,4 +1,5 @@
-import { ISounds } from './interfaces';
+import './style.css';
+import { IStar } from './types';
 
 const game = document.getElementById('game') as HTMLCanvasElement;
 const gameContainer = document.getElementById('game-container');
@@ -23,6 +24,7 @@ const sprites = new Image();
 sprites.src = './assets/img/sprites.png';
 
 const sounds = {
+  lasershoot: undefined,
   play(name: string) {
     this[name].play();
   },
@@ -38,15 +40,15 @@ function randomColor(alpha = 1) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-function roundTo10(number) {
-  return Math.floor(number / 10) * 10;
+function roundTo10(n: number) {
+  return Math.floor(n / 10) * 10;
 }
 
-let particles = [],
-  explosions = [],
-  bullets = [];
+const particles = [];
+const explosions = [];
+const bullets = [];
 
-let player = {
+const player = {
   pos: [mousePos[0], mousePos[1]],
   width: 100,
   height: 70,
@@ -55,32 +57,36 @@ let player = {
   flameFrame: 0,
 };
 
-let createScore = () => {
+function createScore() {
   let count = 0;
+
   return {
-    display: (info = count) => (scoreboard.textContent = info),
-    up: (amount) => {
+    display: (value = count) => (scoreboard.textContent = String(value)),
+
+    up: (amount: number) => {
       count += amount;
       score.display();
     },
+
     clear: () => {
       count = 0;
       score.display();
     },
-    spend: (amount) => {
+
+    spend: (amount: number) => {
       if (+count >= amount) {
         count = +count - amount;
         score.display();
       } else console.log('not enough points');
     },
   };
-};
+}
 
-let score = createScore();
+const score = createScore();
 
 /* Background and front drawing */
 
-let background = ctx.createLinearGradient(width / 2, 0, width / 2, height);
+const background = ctx.createLinearGradient(width / 2, 0, width / 2, height);
 background.addColorStop(0, 'rgba(0, 0, 10, 1)');
 background.addColorStop(0.5, 'rgba(0, 0, 30, 1)');
 background.addColorStop(1, 'rgba(0, 0, 10, 1)');
@@ -91,14 +97,15 @@ function drawBackground() {
   ctx.fillRect(0, 0, width, height);
 }
 
-let stars = new Array(Math.round(height / 10))
-  .fill([])
+const stars: IStar[] = new Array(Math.round(height / 10))
+  .fill(0)
   .map(() => [Math.round((Math.random() * width) / 10) * 10]);
 
-function setStarOptions(color, speed, opacity, tailLength, spaceDepth, xPos) {
+function setStarOptions(color, speed, opacity, tailLength, spaceDepth, xPos?) {
   let i = 0;
+
   for (let star of stars) {
-    star[0] = xPos || star[0];
+    if (xPos) star[0] = xPos;
     star[1] = color;
     star[2] =
       +(speed * ((spaceDepth - i) / +spaceDepth)).toFixed(1) + speed / 10;
@@ -114,7 +121,7 @@ function setStarOptions(color, speed, opacity, tailLength, spaceDepth, xPos) {
 setStarOptions('#f0f', 9, 0.3, 4, 10);
 
 function drawStars() {
-  stars.forEach(function (star, y) {
+  stars.forEach((star, y) => {
     ctx.fillStyle = star[1];
     ctx.globalAlpha = star[3];
 
@@ -127,26 +134,24 @@ function drawStars() {
       }
     }
 
-    if (star[0] <= 0) {
-      star[0] = width;
-    } else {
-      star[0] -= star[2];
-    }
+    if (star[0] <= 0) star[0] = width;
+    else star[0] -= star[2];
   });
+
   ctx.globalAlpha = 1;
 }
 
-let pix = new Image();
+const pix = new Image();
 pix.src = './assets/img/pixpat.png';
-let dot = new Image();
+const dot = new Image();
 dot.src = './assets/img/dotpat.png';
-let cell = new Image();
+const cell = new Image();
 cell.src = './assets/img/cellpat.png';
 
-let grid;
+let grid: CanvasPattern;
 
 pix.onload = function () {
-  grid = ctx.createPattern(this, 'repeat');
+  grid = ctx.createPattern(this as HTMLImageElement, 'repeat');
 };
 
 function drawGrid() {
@@ -154,7 +159,7 @@ function drawGrid() {
   ctx.fillRect(0, 0, width, height);
 }
 
-let vignette = ctx.createRadialGradient(
+const vignette = ctx.createRadialGradient(
   width / 2,
   height / 2,
   300,
@@ -254,13 +259,13 @@ function throwLaser() {
 /* Enemies */
 class Enemy {
   static units = [];
+  pos = [width, 0];
+  width = 100;
+  height = 70;
+  speed = 5;
 
-  constructor(yPos, type) {
-    this.pos = [width, yPos];
-    this.width = 100;
-    this.height = 70;
-    this.type = type;
-    this.speed = 5;
+  constructor(yPos: number) {
+    this.pos[1] = yPos;
   }
 
   static spawn() {
@@ -268,7 +273,7 @@ class Enemy {
       this.units.push(new this(roundTo10(Math.random() * (height - 100) + 50)));
     }
 
-    function chance(value, outOf) {
+    function chance(value: number, outOf: number) {
       return Math.random() * outOf > outOf - value;
     }
   }

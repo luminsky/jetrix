@@ -4,9 +4,10 @@
     "target": "ES2015",
     "module": "ES2020",
     "removeComments": true,
-    "outDir": "./dist/jetrix",
+    "outDir": "dist/jetrix",
     "baseUrl": "./",
+    "lib": ["DOM", "ES2018"]
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "Jetrix_alpha1"]
 }

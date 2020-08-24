@@ -1,3 +1,5 @@
+@import "../node_modules/normalize-css";
+
 body {
   background: black url(./assets/img/page-bg.png) repeat;
   font-family: Highspeed, Consolas, Arial, sans-serif;
@@ -132,5 +134,5 @@ body {
 
 @font-face {
   font-family: Highspeed;
-  src: url(./assets/fonts/highspeed.ttf);
+  src: url(./assets/fonts/highspeed.ttf) format("truetype");
 }
