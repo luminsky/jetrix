@@ -71,13 +71,13 @@ body {
   list-style: none;
 }
 
-#menu>li {
+#menu > li {
   cursor: pointer;
   margin: 10px 0;
   padding: 5px 10px;
 }
 
-#menu>li:hover {
+#menu > li:hover {
   background: #fff1;
   color: #fef;
 }

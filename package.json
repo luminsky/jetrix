@@ -10,11 +10,14 @@
     "@types/node": "^14.6.0",
     "clean-webpack-plugin": "^3.0.0",
     "copy-webpack-plugin": "^6.0.3",
+    "cross-env": "^7.0.2",
     "css-loader": "^4.2.1",
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.3.0",
     "mini-css-extract-plugin": "^0.10.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
     "style-loader": "^1.2.1",
+    "terser-webpack-plugin": "^4.1.0",
     "ts-loader": "^8.0.3",
     "typescript": "^4.0.2",
     "webpack": "^4.44.1",
@@ -22,10 +25,10 @@
     "webpack-dev-server": "^3.11.0"
   },
   "scripts": {
-    "build:dev": "webpack --mode development",
-    "build": "webpack --config webpack.config.js",
-    "watch": "webpack --mode development --watch",
-    "serve": "webpack-dev-server --mode development --open"
+    "build:dev": "cross-env NODE_ENV=development webpack --mode development",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js",
+    "watch": "cross-env NODE_ENV=development webpack --mode development --watch",
+    "serve": "cross-env NODE_ENV=development webpack-dev-server --mode development --open"
   },
   "repository": {
     "type": "git",

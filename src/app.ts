@@ -3,9 +3,11 @@ import { IStar } from './types';
 
 const game = document.getElementById('game') as HTMLCanvasElement;
 const gameContainer = document.getElementById('game-container');
-const width = (game.width = window.innerWidth);
-const height = (game.height = window.innerHeight);
+const offscreen = document.createElement('canvas');
+const width = (game.width = offscreen.width = window.innerWidth);
+const height = (game.height = offscreen.height = window.innerHeight);
 const ctx = game.getContext('2d');
+const offscreenCtx = offscreen.getContext('2d');
 
 ctx.imageSmoothingEnabled = false;
 
@@ -24,14 +26,17 @@ const sprites = new Image();
 sprites.src = './assets/img/sprites.png';
 
 const sounds = {
-  lasershoot: undefined,
+  lasershot: undefined,
+  explosion: undefined,
   play(name: string) {
     this[name].play();
   },
 };
 
-sounds.lasershoot = new Audio('./assets/audio/lasershoot.wav');
-sounds.lasershoot.volume = 0.5;
+sounds.explosion = new Audio('./assets/audio/explosion.wav');
+sounds.explosion.volume = 0.5;
+sounds.lasershot = new Audio('./assets/audio/lasershot.wav');
+sounds.lasershot.volume = 0.5;
 
 function randomColor(alpha = 1) {
   let r = Math.round(Math.random() * 255);
@@ -97,24 +102,27 @@ function drawBackground() {
   ctx.fillRect(0, 0, width, height);
 }
 
-const stars: IStar[] = new Array(Math.round(height / 10))
-  .fill(0)
-  .map(() => [Math.round((Math.random() * width) / 10) * 10]);
+const stars: IStar[] = [];
 
-function setStarOptions(color, speed, opacity, tailLength, spaceDepth, xPos?) {
-  let i = 0;
+for (let i = 0; i < Math.round(height / 10); i++) {
+  stars.push({ x: Math.round((Math.random() * width) / 10) * 10 });
+}
+
+function setStarOptions(color, speed, opacity, tailLength, spaceDepth, posX?) {
+  let layer = 0;
 
   for (let star of stars) {
-    if (xPos) star[0] = xPos;
-    star[1] = color;
-    star[2] =
-      +(speed * ((spaceDepth - i) / +spaceDepth)).toFixed(1) + speed / 10;
-    star[3] =
-      +(opacity * ((spaceDepth - i) / +spaceDepth)).toFixed(2) + opacity / 10;
-    star[4] = i < tailLength ? tailLength - i : 0;
+    if (posX) star.x = posX;
+    star.color = color;
+    star.speed =
+      +(speed * ((spaceDepth - layer) / +spaceDepth)).toFixed(1) + speed / 10;
+    star.opacity =
+      +(opacity * ((spaceDepth - layer) / +spaceDepth)).toFixed(2) +
+      opacity / 10;
+    star.tailLength = layer < tailLength ? tailLength - layer : 0;
 
-    if (i === spaceDepth) i = 0;
-    else i++;
+    if (layer === spaceDepth) layer = 0;
+    else layer++;
   }
 }
 
@@ -122,20 +130,23 @@ setStarOptions('#f0f', 9, 0.3, 4, 10);
 
 function drawStars() {
   stars.forEach((star, y) => {
-    ctx.fillStyle = star[1];
-    ctx.globalAlpha = star[3];
+    ctx.fillStyle = star.color;
+    ctx.globalAlpha = star.opacity;
 
-    ctx.fillRect(star[0], y * 10, 10, 10);
+    ctx.fillRect(star.x, y * 10, 10, 10);
 
-    if (star[4]) {
-      for (let i = 1; i <= star[4]; i++) {
-        ctx.globalAlpha = (star[3] / 2) * ((star[4] - i) / star[4]);
-        ctx.fillRect(star[0] + i * 10, y * 10, 10, 10);
+    if (star.tailLength) {
+      for (let i = 1; i <= star.tailLength; i++) {
+        ctx.globalAlpha =
+          (star.opacity / 2) * ((star.tailLength - i) / star.tailLength);
+        ctx.fillRect(star.x + i * 10, y * 10, 10, 10);
       }
     }
 
-    if (star[0] <= 0) star[0] = width;
-    else star[0] -= star[2];
+    if (star.x <= 0) star.x = width + Math.random() * 200;
+    else star.x -= star.speed;
+
+    star.x = ~~star.x;
   });
 
   ctx.globalAlpha = 1;
@@ -148,15 +159,18 @@ dot.src = './assets/img/dotpat.png';
 const cell = new Image();
 cell.src = './assets/img/cellpat.png';
 
-let grid: CanvasPattern;
-
 pix.onload = function () {
-  grid = ctx.createPattern(this as HTMLImageElement, 'repeat');
+  setGrid(pix);
 };
 
+function setGrid(pattern: HTMLImageElement) {
+  offscreenCtx.clearRect(0, 0, offscreen.width, offscreen.height);
+  offscreenCtx.fillStyle = ctx.createPattern(pattern, 'repeat');
+  offscreenCtx.fillRect(0, 0, width, height);
+}
+
 function drawGrid() {
-  ctx.fillStyle = grid;
-  ctx.fillRect(0, 0, width, height);
+  ctx.drawImage(offscreen, 0, 0);
 }
 
 const vignette = ctx.createRadialGradient(
@@ -223,49 +237,73 @@ function drawFlame() {
 }
 
 function makeShot() {
-  sounds.play('lasershoot');
+  let i = bullets.push({
+    type: player.gun,
+    x: player.pos[0] + player.width,
+    y: player.pos[1] + player.height / 2 - 2,
+    end: width,
+    age: 0.5,
+    id: bullets.length,
+  });
 
-  switch (player.gun) {
-    case 'laser':
-      throwLaser();
-      break;
-    case 'plasma':
-      // throwPlasma();
-      break;
-    case 'tesla':
-    // throwTesla();
+  for (let unit of Enemy.units) {
+    if (unit) {
+      if (
+        bullets[i - 1].y >= unit.pos[1] &&
+        bullets[i - 1].y <= unit.pos[1] + unit.height
+      ) {
+        bullets[i - 1].end = unit.pos[0] - bullets[i - 1].x;
+        unit.explode();
+        score.up(10);
+        break;
+      }
+    }
+  }
+
+  sounds.play(player.gun + 'shot');
+
+  // glow(
+  //   '#f00',
+  //   mousePos[0] + player.width,
+  //   roundTo10(mousePos[1]) + player.height / 2
+  // );
+}
+
+function updateBullets() {}
+
+function drawBullets() {
+  for (let bullet of bullets) {
+    if (bullet) {
+      switch (bullet.type) {
+        case 'laser':
+          if ((bullet.age -= 0.02) <= 0) bullets[bullet.id] = null;
+
+          ctx.fillStyle = `rgba(255,0,0,${bullet.age.toFixed(1)})`;
+          ctx.fillRect(bullet.x, bullet.y, bullet.end, 4);
+
+          break;
+        case 'tesla':
+          break;
+        case 'plasma':
+          break;
+      }
+    }
   }
 }
 
-function throwLaser() {
-  // ?
-  ctx.fillStyle = 'red';
-  ctx.globalAlpha = 0.7;
-  ctx.fillRect(
-    mousePos[0] + player.width,
-    mousePos[1] + player.height / 2,
-    width,
-    -(Math.random() * 3 + 4)
-  );
-  glow(
-    '#f00',
-    mousePos[0] + player.width,
-    roundTo10(mousePos[1]) + player.height / 2
-  );
-
-  for (let i = 0; i < 10; i++) {}
-}
-
 /* Enemies */
+
 class Enemy {
-  static units = [];
+  static units: Enemy[] = [];
   pos = [width, 0];
   width = 100;
   height = 70;
   speed = 5;
+  id = 0;
 
   constructor(yPos: number) {
     this.pos[1] = yPos;
+    this.id = Enemy.units.length;
   }
 
   static spawn() {
@@ -277,33 +315,51 @@ class Enemy {
       return Math.random() * outOf > outOf - value;
     }
   }
+
+  explode() {
+    Enemy.units[this.id] = null;
+    sounds.play('explosion');
+  }
 }
 
 function drawEnemies() {
   for (let unit of Enemy.units) {
-    ctx.drawImage(
-      sprites,
-      10,
-      0,
-      10,
-      7,
-      roundTo10(unit.pos[0]),
-      roundTo10(unit.pos[1]),
-      100,
-      70
-    );
+    if (unit)
+      ctx.drawImage(
+        sprites,
+        10,
+        0,
+        10,
+        7,
+        roundTo10(unit.pos[0]),
+        roundTo10(unit.pos[1]),
+        100,
+        70
+      );
   }
 }
 
 /* Render and Updating */
 
 function checkCollisions() {
-  // return (x >= this.x - this.w/2 && x <= this.x + this.w/2) &&
-  //     (y >= this.y - this.h/2 && y <= this.y + this.h/2);
+  for (let unit of Enemy.units) {
+    if (
+      unit &&
+      player.pos[0] < unit.pos[0] + unit.width &&
+      player.pos[0] + player.width > unit.pos[0] &&
+      player.pos[1] < unit.pos[1] + unit.height &&
+      player.pos[1] + player.height > unit.pos[1]
+    ) {
+      unit.explode();
+      score.clear();
+    }
+  }
 }
 
 function updatePos() {
-  player.pos = [roundTo10(mousePos[0]), roundTo10(mousePos[1])];
+  player.pos[0] = roundTo10(mousePos[0]);
+  player.pos[1] = roundTo10(mousePos[1]);
+
   if (player.pos[0] < 0) player.pos[0] = 0;
   if (player.pos[0] + player.width > width)
     player.pos[0] = roundTo10(width) - player.width;
@@ -312,22 +368,35 @@ function updatePos() {
     player.pos[1] = roundTo10(height) - player.height;
 
   for (let unit of Enemy.units) {
-    unit.pos[0] -= unit.speed;
-    if (unit.pos[0] < 0 - unit.width) Enemy.units.shift();
+    if (unit) {
+      unit.pos[0] -= unit.speed;
+      if (unit.pos[0] < 0 - unit.width) {
+        unit.explode();
+        score.clear();
+      }
+    }
   }
 }
 
-function renderScene() {
+let then = 0;
+
+function renderScene(now: number) {
+  now = ~~now;
+  const deltaTime = now - then;
+  then = now;
+
   if (!playMode) {
     drawBackground();
     drawStars();
 
-    checkCollisions();
     updatePos();
+    updateBullets();
+    checkCollisions();
     Enemy.spawn();
     drawEnemies();
     drawFlame();
     drawPlayer();
+    drawBullets();
 
     drawGrid();
     drawVignette();
@@ -336,7 +405,7 @@ function renderScene() {
   requestAnimationFrame(renderScene);
 }
 
-function gameMouseDown(e) {
+function gameMouseDown(e: MouseEvent) {
   e.preventDefault();
   switch (e.which) {
     case 1:
@@ -368,7 +437,7 @@ function hideMenu() {
   game.style.webkitFilter = 'brightness(100%)';
 }
 
-function gameMouseUp(e) {
+function gameMouseUp(e: MouseEvent) {
   switch (e.target) {
     case settings:
       makeShot();
@@ -382,9 +451,9 @@ function gameMouseUp(e) {
   }
 }
 
-function gameMouseMove(e) {
-  mousePos[0] = e.clientX - game.getBoundingClientRect().left;
-  mousePos[1] = e.clientY - game.getBoundingClientRect().top;
+function gameMouseMove(e: MouseEvent) {
+  mousePos[0] = ~~(e.clientX - game.getBoundingClientRect().left);
+  mousePos[1] = ~~(e.clientY - game.getBoundingClientRect().top);
 }
 
 function gameMouseEnter() {
@@ -404,12 +473,11 @@ function gameMouseLeave() {
   scoreboard.style.opacity = '0';
 }
 
-requestAnimationFrame(renderScene);
-
 gameContainer.addEventListener('contextmenu', (e) => e.preventDefault(), false);
-
 gameContainer.addEventListener('mouseup', gameMouseUp);
 gameContainer.addEventListener('mousedown', gameMouseDown);
 gameContainer.addEventListener('mousemove', gameMouseMove);
 gameContainer.addEventListener('mouseenter', gameMouseEnter);
 gameContainer.addEventListener('mouseleave', gameMouseLeave);
+
+requestAnimationFrame(renderScene);

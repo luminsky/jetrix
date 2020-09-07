@@ -1,3 +1,9 @@
 export interface ISounds {}
 
-export type IStar = [number, string?, number?, number?, number?];
+export interface IStar {
+  x: number;
+  color?: string;
+  speed?: number;
+  opacity?: number;
+  tailLength?: number;
+}

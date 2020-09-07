@@ -1,36 +1,61 @@
 const path = require('path');
+
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = !isDev;
+
+const absolutePath = path.resolve.bind(path, __dirname);
+
+const optimization = () => {
+  const config = {
+    splitChunks: {
+      chunks: 'all',
+    },
+  };
+
+  if (isProd) {
+    config.minimizer = [
+      new OptimizeCssAssetsWebpackPlugin(),
+      new TerserWebpackPlugin(),
+    ];
+  }
+
+  return config;
+};
+
+const filename = (ext) =>
+  isDev ? `[name].${ext}` : `[name].[contenthash].${ext}`;
 
 module.exports = {
-  context: path.resolve(__dirname, 'src'),
+  context: absolutePath('src'),
   mode: 'production',
   entry: {
     main: './app.ts',
   },
   output: {
-    filename: '[name].[contenthash].js',
-    path: path.resolve(__dirname, 'dist/public'),
+    filename: filename('js'),
+    path: absolutePath('dist/public'),
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
     alias: {
-      '@img': path.resolve(__dirname, 'src/assets/img'),
-      '@audio': path.resolve(__dirname, 'src/assets/audio'),
+      '@img': absolutePath('src/assets/img'),
+      '@audio': absolutePath('src/assets/audio'),
     },
   },
-  optimization: {
-    splitChunks: {
-      chunks: 'all',
-    },
-  },
+  optimization: optimization(),
   devServer: {
     contentBase: 'dist',
     compress: true,
     port: 4200,
   },
+  devtool: isDev ? 'source-map' : '',
   plugins: [
     new CleanWebpackPlugin(),
     new HTMLWebpackPlugin({
@@ -43,22 +68,22 @@ module.exports = {
       },
     }),
     new MiniCssExtractPlugin({
-      filename: 'style-[hash].css',
+      filename: filename('css'),
       allChunks: true,
     }),
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, 'src/favicon.ico'),
-          to: path.resolve(__dirname, 'dist/public'),
+          from: absolutePath('src/favicon.ico'),
+          to: absolutePath('dist/public'),
         },
         {
-          from: path.resolve(__dirname, 'src/assets/img'),
-          to: path.resolve(__dirname, 'dist/public/assets/img'),
+          from: absolutePath('src/assets/img'),
+          to: absolutePath('dist/public/assets/img'),
         },
         {
-          from: path.resolve(__dirname, 'src/assets/audio'),
-          to: path.resolve(__dirname, 'dist/public/assets/audio'),
+          from: absolutePath('src/assets/audio'),
+          to: absolutePath('dist/public/assets/audio'),
         },
       ],
     }),
@@ -68,10 +93,11 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          /* 'style-loader' */ {
+          // 'style-loader'
+          {
             loader: MiniCssExtractPlugin.loader,
             options: {
-              hmr: process.env.NODE_ENV === 'development',
+              hmr: isDev,
             },
           },
           'css-loader',
@@ -79,6 +105,7 @@ module.exports = {
       },
       {
         test: /\.ts$/,
+        exclude: [absolutePath('node_modules')],
         use: ['ts-loader'],
       },
       {
