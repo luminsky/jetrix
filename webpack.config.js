@@ -40,7 +40,7 @@ module.exports = {
   },
   output: {
     filename: filename('js'),
-    path: absolutePath('dist/public'),
+    path: absolutePath('dist'),
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
@@ -75,15 +75,15 @@ module.exports = {
       patterns: [
         {
           from: absolutePath('src/favicon.ico'),
-          to: absolutePath('dist/public'),
+          to: absolutePath('dist'),
         },
         {
           from: absolutePath('src/assets/img'),
-          to: absolutePath('dist/public/assets/img'),
+          to: absolutePath('dist/assets/img'),
         },
         {
           from: absolutePath('src/assets/audio'),
-          to: absolutePath('dist/public/assets/audio'),
+          to: absolutePath('dist/assets/audio'),
         },
       ],
     }),

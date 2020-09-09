@@ -1,25 +1,26 @@
 screenshot
 variative pattern styles
 change guns
-	laser
-	plasmaGun
-	tesla
+  laser
+  plasmaGun
+  tesla
 variative enemies
 user authorizathion
 hud
 menu by rmb
 web side
-	cookies (ettings saving)
-	scoreBoard
+  cookies (ettings saving)
+  scoreBoard
 render
-	glows
-	flow gradients
-	ambient occlusion
-	chromatic aberration
-	ship transfusion
-	parallax (?)
+  glows
+  flow gradients
+  ambient occlusion
+  chromatic aberration
+  ship transfusion
+  parallax (?)
 fix pause
 fix stars
+
 redo enemy y tracking
 
 put back gameplay

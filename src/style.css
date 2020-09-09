@@ -1,138 +1,123 @@
 @import "../node_modules/normalize-css";
 
 body {
-  background: black url(./assets/img/page-bg.png) repeat;
-  font-family: Highspeed, Consolas, Arial, sans-serif;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    background: black url(./assets/img/page-bg.png) repeat;
+    font-family: Highspeed, Consolas, Arial, sans-serif;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #game-container {
-  cursor: none;
-  background: #000;
-  box-shadow: 0 0 20px 20px rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    cursor: none;
+    background: #000;
+    box-shadow: 0 0 20px 20px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #game {
-  background-color: black;
-  /*transition: 0.5s;*/
+    background-color: black;
+    /*transition: 0.5s;*/
 }
 
 #pause,
 #pause::selection {
-  display: none;
-  position: absolute;
-  text-align: center;
-  width: 100%;
-  font-size: 100px;
-  color: white;
-  opacity: 0.7;
-  text-shadow: 0 -9px 0 #407, 0 -18px 0 #a2f;
-  animation: pause 2s infinite;
+    display: none;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    font-size: 100px;
+    color: white;
+    opacity: 0.7;
+    text-shadow: 0 -9px 0 #407, 0 -18px 0 #a2f;
+    animation: pause 2s infinite;
 }
 
 #score,
 #score::selection {
-  position: absolute;
-  top: 20px;
-  text-align: center;
-  font-size: 30px;
-  opacity: 0.5;
-  transition: 1s;
-  animation: blinking 2s infinite;
-  text-shadow: 0 6px 0 #407;
+    position: absolute;
+    top: 20px;
+    text-align: center;
+    font-size: 30px;
+    opacity: 0.5;
+    transition: 1s;
+    color: #70b;
+    animation: blinking ease-in-out 2s infinite;
+    text-shadow: 0 6px 0 #407;
 }
 
 #score:hover {
-  opacity: 1;
-  transform: scale(1.5);
-  color: #fdf;
-  animation: none;
+    opacity: 1;
+    transform: scale(1.5);
+    color: #fdf;
+    animation: none;
 }
 
 #menu {
-  cursor: default;
-  display: none;
-  position: absolute;
-  font-size: 30px;
-  top: 0;
-  left: 0;
-  background: #0006;
-  color: #d9f;
-  list-style: none;
+    cursor: default;
+    display: none;
+    position: absolute;
+    font-size: 30px;
+    top: 0;
+    left: 0;
+    background: #0006;
+    color: #d9f;
+    list-style: none;
 }
 
 #menu > li {
-  cursor: pointer;
-  margin: 10px 0;
-  padding: 5px 10px;
+    cursor: pointer;
+    margin: 10px 0;
+    padding: 5px 10px;
 }
 
 #menu > li:hover {
-  background: #fff1;
-  color: #fef;
+    background: #fff1;
+    color: #fef;
 }
 
 @keyframes blinking {
-  0% {
-    color: #70b;
-  }
-
-  50% {
-    color: #d9f;
-  }
-
-  100% {
-    color: #70b;
-  }
+    50% {
+        color: #d9f;
+    }
 }
 
 @keyframes pause {
-  0% {
-    opacity: 0.7;
-  }
-
-  50% {
-    opacity: 0.2;
-  }
-
-  100% {
-    opacity: 0.7;
-  }
+    50% {
+        opacity: 0.2;
+    }
 }
 
 @keyframes menu {
-  0% {
-    color: #d9f0;
-    width: 0;
-    height: 10px;
-  }
+    0% {
+        color: #d9f0;
+        width: 0;
+        height: 10px;
+    }
 
-  40% {
-    width: 215px;
-    height: 10px;
-  }
+    40% {
+        width: 215px;
+        height: 10px;
+    }
 
-  80% {
-    height: 180px;
-    color: #d9f0;
-  }
+    80% {
+        height: 180px;
+        color: #d9f0;
+    }
 
-  100% {
-    color: #d9ff;
-  }
+    100% {
+        color: #d9ff;
+    }
 }
 
 @font-face {
-  font-family: Highspeed;
-  src: url(./assets/fonts/highspeed.ttf) format("truetype");
+    font-family: Highspeed;
+    src: url(./assets/fonts/highspeed.ttf) format("truetype");
 }
