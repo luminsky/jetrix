@@ -1,26 +1,13 @@
-screenshot
-variative pattern styles
-change guns
-  laser
-  plasmaGun
+guns
+  plasma
   tesla
 variative enemies
-user authorizathion
-hud
-menu by rmb
-web side
-  cookies (ettings saving)
-  scoreBoard
+deployment
+  users
+  LocalStorage
+  scoreboard DB
 render
-  glows
   flow gradients
   ambient occlusion
-  chromatic aberration
   ship transfusion
   parallax (?)
-fix pause
-fix stars
-
-redo enemy y tracking
-
-put back gameplay

@@ -1,0 +1,123 @@
+@import '../node_modules/normalize-css';
+
+$purple-dark: #407;
+$turquoise: rgb(155, 215, 255);
+
+body {
+    background: black url(./assets/img/page-bg.png) repeat;
+    font-family: 'Highspeed', 'Consolas', Arial, sans-serif;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#game-container {
+    cursor: none;
+    background: black;
+    box-shadow: 0 0 20px 20px rgba(black, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#game-canvas {
+    background-color: black;
+    transition: 0.15s steps(3);
+}
+
+#pause-text,
+#pause-text::selection {
+    display: none;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    font-size: 100px;
+    color: white;
+    opacity: 0.7;
+    text-shadow: 0 -9px 0 $purple-dark, 0 -18px 0 #a2f;
+    animation: pause 2s infinite;
+}
+
+#score,
+#score::selection {
+    position: absolute;
+    top: 20px;
+    text-align: center;
+    font-size: 30px;
+    opacity: 0.5;
+    transition: 1s;
+    color: #70b;
+    animation: blinking ease-in-out 2s infinite;
+    text-shadow: 0 6px 0 $purple-dark;
+}
+
+#score:hover {
+    opacity: 1;
+    transform: scale(1.5);
+    color: #fdf;
+    animation: none;
+}
+
+#menu {
+    padding: 0;
+    margin: 0;
+    cursor: default;
+    overflow: hidden;
+    font-size: 30px;
+    text-shadow: 0 0 15px $turquoise,
+        15px 0 0 rgba(100, 0, 255, 0.3),
+        -10px 0 0 rgba(255, 100, 0, 0.3),
+        5px 0 0 rgba(0, 255, 0, 0.3);
+    display: none;
+    position: absolute;
+    color: rgb(155, 215, 255, 0.8);
+    list-style: none;
+
+    li {
+        border-left: 2px solid rgba($turquoise, 0.3);
+        transition: 0.1s;
+        padding: 5px 20px;
+        padding-bottom: 10px;
+        margin: 7px 0;
+
+        &:hover {
+            border-left: 2px solid rgba($turquoise, 0.8);
+            background: #fff1;
+            color: rgb(155, 215, 255);
+            text-shadow: 0 0 15px white, 0 0, 0 0, 0 0;
+
+        }
+    }
+}
+
+@keyframes blinking {
+    50% {
+        color: #d9f;
+    }
+}
+
+@keyframes pause {
+    50% {
+        opacity: 0.2;
+    }
+}
+
+@keyframes open-menu {
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 250px;
+    }
+}
+
+@font-face {
+    font-family: 'Highspeed';
+    src: url(./assets/fonts/highspeed.ttf) format('truetype');
+}
