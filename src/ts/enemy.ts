@@ -18,11 +18,14 @@ export class Enemy {
 
     x = width;
     y = 0;
-    width = 100;
-    height = 70;
+    width: number;
+    height: number;
+    sprite = 'enemy-1';
     speed = 5;
 
     constructor(y: number) {
+        this.width = 100;
+        this.height = 70;
         this.y = y;
     }
 

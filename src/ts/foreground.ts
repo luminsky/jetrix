@@ -1,25 +1,18 @@
 import { ctx, gameCanvas, height, width } from '../main';
 
 export class Grid {
-    canvas: HTMLCanvasElement = document.createElement('canvas');
-    ctx: CanvasRenderingContext2D;
+    private canvas: HTMLCanvasElement;
+    private ctx: CanvasRenderingContext2D;
     patterns: Map<string, CanvasPattern> = new Map();
 
     constructor() {
-        this.canvas;
+        this.canvas = document.createElement('canvas');
         this.canvas.width = gameCanvas.width;
         this.canvas.height = gameCanvas.height;
         this.ctx = this.canvas.getContext('2d');
-
-        this.add('pix', '../assets/img/pixpat.png').then(() => {
-            this.set('pix');
-        });
-
-        this.add('cell', '../assets/img/cellpat.png');
-        this.add('dot', '../assets/img/dotpat.png');
     }
 
-    add(name: string, src: string) {
+    load(name: string, src: string) {
         return new Promise<CanvasPattern>(resolve => {
             const image = new Image();
             image.src = src;

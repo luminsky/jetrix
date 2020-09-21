@@ -3,16 +3,21 @@ import { IBullet } from './bullets';
 import { Enemy } from './enemy';
 
 export class Player {
-    x = mouseX;
-    y = mouseY;
-    width = 100;
-    height = 70;
+    x = 0;
+    y = 0;
+    width: number;
+    height: number;
     gun = 'laser';
-    skin = 'default';
+    sprite = 'player-1';
     flameFrame = 0;
     speed = 250;
 
-    constructor() {}
+    constructor() {
+        this.width = 100;
+        this.height = 70;
+        this.x = mouseX;
+        this.y = mouseY;
+    }
 
     update() {
         const diffX = mouseX - this.x;

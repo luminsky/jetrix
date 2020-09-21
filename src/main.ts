@@ -5,15 +5,18 @@ import { Background, Stars } from './ts/background';
 import { Bullets } from './ts/bullets';
 import { Enemy } from './ts/enemy';
 import { Player } from './ts/player';
+import { Sounds } from './ts/sounds';
+import { Score } from './ts/score';
+// import { Sprites } from './ts/sprites';
 
 export const gameCanvas = document.getElementById('game-canvas') as HTMLCanvasElement;
-const gameContainer = document.getElementById('game-container');
-const settings = document.getElementById('settings');
-const upgrade = document.getElementById('upgrade');
-const leaderboard = document.getElementById('leaderboard');
-const pauseText = document.getElementById('pause-text');
-const scoreEl = document.getElementById('score');
-const menu = document.getElementById('menu');
+export const gameContainer = document.getElementById('game-container');
+export const settings = document.getElementById('settings');
+export const upgrade = document.getElementById('upgrade');
+export const leaderboard = document.getElementById('leaderboard');
+export const pauseText = document.getElementById('pause-text');
+export const scoreEl = document.getElementById('score');
+export const menu = document.getElementById('menu');
 
 export const width = window.innerWidth > gameCanvas.width ? window.innerWidth : gameCanvas.width;
 export const height =
@@ -29,9 +32,9 @@ ctx.imageSmoothingEnabled = false;
 export let mouseX = 300;
 export let mouseY = fit(height / 2);
 
-let pause = false;
+export let masterVolume = 0.3;
 
-let masterVolume = 0.3;
+export let pause = false;
 
 let then = Date.now();
 
@@ -66,6 +69,14 @@ function render() {
 }
 
 function init() {
+    grid.load('pix', './assets/img/pixpat.png').then(() => grid.set('pix'));
+    grid.load('cell', './assets/img/cellpat.png');
+    grid.load('dot', './assets/img/dotpat.png');
+
+    sounds.load('explosion', './assets/audio/explosion.wav');
+    sounds.load('lasershot', './assets/audio/lasershot.wav');
+    sounds.load('death', './assets/audio/death.wav');
+
     gameContainer.addEventListener('contextmenu', e => e.preventDefault(), false);
     gameContainer.addEventListener('mouseup', gameMouseUp);
     gameContainer.addEventListener('mousedown', gameMouseDown);
@@ -100,64 +111,7 @@ export function glow(colorFrom: string, colorTo: string, x: number, y: number, s
 export const sprites = new Image();
 sprites.src = './assets/img/sprites.png';
 
-class Sounds {
-    units: Map<string, HTMLAudioElement> = new Map();
-
-    constructor() {
-        this.load('explosion', './assets/audio/explosion.wav');
-        this.load('lasershot', './assets/audio/lasershot.wav');
-        this.load('death', './assets/audio/death.wav');
-    }
-
-    load(name: string, src: string) {
-        const sound = new Audio(src);
-
-        this.units.set(name, sound);
-        sound.volume = masterVolume;
-    }
-
-    play(name: string) {
-        const sound = this.units.get(name);
-
-        sound.currentTime = 0;
-        sound.play();
-    }
-}
-
-class Score {
-    #count = 0;
-
-    constructor() {}
-
-    get count() {
-        return this.#count;
-    }
-
-    render(value: number | string = this.#count) {
-        scoreEl.textContent = String(value);
-    }
-
-    up(amount: number) {
-        this.#count += amount;
-        this.render();
-    }
-
-    clear() {
-        this.#count = 0;
-        this.render();
-        sounds.play('death');
-    }
-
-    spend(amount: number) {
-        if (this.#count >= amount) {
-            this.#count = this.#count - amount;
-            this.render();
-        } else {
-            // not enough points
-        }
-    }
-}
-
+// export const sprites = new Sprites('./assets/img/sprites.png');
 export const sounds = new Sounds();
 export const stars = new Stars();
 export const bg = new Background();
