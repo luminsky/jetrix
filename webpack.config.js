@@ -32,7 +32,7 @@ module.exports = {
     context: absolutePath('src'),
     mode: 'production',
     entry: {
-        main: './app.ts',
+        main: './main.ts',
     },
     output: {
         filename: filename('js'),
